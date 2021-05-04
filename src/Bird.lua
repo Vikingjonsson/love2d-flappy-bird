@@ -6,6 +6,8 @@ local debug = require 'src.debug'
 
 local GRAVITY = 30
 local ANIT_GRAVITY = -6
+local HIT_BOX_START_OFFSET = 4
+local HIT_BOX_END_OFFSET = 8
 
 --#region Bird
 ---@class Bird
@@ -22,7 +24,12 @@ function Bird:init()
   self.x = (constant.VIRTUAL_WIDTH / 3) - (self.width / 2)
   self.dy, self.dx = 0, 0
 
-  self.hit_box = {x = self.x + 4, y = self.y + 4, width = self.width - 4, height = self.height - 4}
+  self.hit_box = {
+    x = self.x + HIT_BOX_START_OFFSET,
+    y = self.y + HIT_BOX_START_OFFSET,
+    width = self.width - HIT_BOX_END_OFFSET,
+    height = self.height - HIT_BOX_END_OFFSET
+  }
 end
 
 ---Checks if Bird has collides
@@ -37,7 +44,7 @@ end
 function Bird:update(dt)
   self.dy = self.dy + GRAVITY * dt
   self.y = self.y + self.dy
-  self.hit_box = {x = self.x + 4, y = self.y + 4, width = self.width - 8, height = self.height - 8}
+  self.hit_box.y = self.y + HIT_BOX_START_OFFSET
 
   if keyboard.was_key_pressed('space') then
     self.dy = ANIT_GRAVITY
