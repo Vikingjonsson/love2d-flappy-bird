@@ -1,7 +1,7 @@
 local M = {}
 
----@tparam a table<string, number> representing a rectangle
----@tparam b table<string, number> representing a rectangle
+---@param a table<string, number> representing a rectangle
+---@param b table<string, number> representing a rectangle
 ---@return boolean result true if collision has happened otherwise false
 function M.check_collision_AABB(a, b)
   local has_collision =

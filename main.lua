@@ -1,12 +1,11 @@
-local Pipe = require 'src.Pipe'
 if os.getenv('LOCAL_LUA_DEBUGGER_VSCODE') == '1' then
   require('lldebugger').start()
+  _G.debugging = true
 end
 
 local push = require 'lib.push.push'
 local constants = require 'src.constants'
 local Bird = require 'src.Bird'
-
 local PipePair = require 'src.PipePair'
 local keyboard = require 'src.keyboard'
 
@@ -33,15 +32,22 @@ local pipePairs = {} ---@type PipePair[]
 local last_y =
   love.math.random(constants.VIRTUAL_HEIGHT / 2 - 70, constants.VIRTUAL_HEIGHT / 2 + 40)
 
+local is_paused = false
+
 function love.resize(w, h)
   push:resize(w, h)
 end
 
 function love.keypressed(key)
   keyboard.add_pressed_keys(key)
-
   if key == 'escape' then
     love.event.quit(1)
+  end
+
+  if key == 'p' and not is_paused then
+    is_paused = true
+  elseif key == 'p' and is_paused then
+    is_paused = false
   end
 end
 
@@ -66,6 +72,10 @@ function love.load()
 end
 
 function love.update(dt)
+  if is_paused then
+    return
+  end
+
   background.x = (background.x - background.speed * dt) % background.looping_point
   ground.x = (ground.x - ground.speed * dt) % ground.looping_point
   player:update(dt)
@@ -73,7 +83,7 @@ function love.update(dt)
   spawn_timer = spawn_timer - dt
   if spawn_timer <= 0 then
     spawn_timer = 2.5
-    table.insert(pipePairs, PipePair(last_y))
+    table.insert(pipePairs, PipePair(last_y, ground.speed))
     local max_y = math.min(last_y + 20, constants.VIRTUAL_HEIGHT - 50)
     local min_y = math.max(50, last_y - 70)
     last_y = math.random(min_y, max_y)
@@ -81,6 +91,11 @@ function love.update(dt)
 
   for index, pair in ipairs(pipePairs) do
     pair:update(dt)
+    local top, bottom = pair.pipes.top, pair.pipes.bottom
+
+    if player:has_collision(top) or player:has_collision(bottom) then
+      is_paused = true
+    end
 
     if pair.x < -pair.width then
       pair.remove = true
@@ -105,6 +120,7 @@ function love.draw()
   for _, pair in pairs(pipePairs) do
     pair:draw()
   end
+
   love.graphics.draw(ground.sprite, ground.x, ground.y)
   player:draw()
   push:finish()
