@@ -1,7 +1,8 @@
 if os.getenv('LOCAL_LUA_DEBUGGER_VSCODE') == '1' then
   require('lldebugger').start()
-  _G.debugging = true
 end
+
+_G.debugging = false
 
 local push = require 'lib.push.push'
 local constants = require 'src.constants'
@@ -84,6 +85,8 @@ function love.update(dt)
   if spawn_timer <= 0 then
     spawn_timer = 2.5
     table.insert(pipePairs, PipePair(last_y, ground.speed))
+
+    -- TODO: remove magic numbers
     local max_y = math.min(last_y + 20, constants.VIRTUAL_HEIGHT - 50)
     local min_y = math.max(50, last_y - 70)
     last_y = math.random(min_y, max_y)
@@ -91,7 +94,7 @@ function love.update(dt)
 
   for index, pair in ipairs(pipePairs) do
     pair:update(dt)
-    local top, bottom = pair.pipes.top, pair.pipes.bottom
+    local top, bottom = pair.pipes.top.hit_box, pair.pipes.bottom.hit_box
 
     if player:has_collision(top) or player:has_collision(bottom) then
       is_paused = true

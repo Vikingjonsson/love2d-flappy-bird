@@ -4,8 +4,8 @@ local keyboard = require 'src.keyboard'
 local collission_detection = require 'src.collision'
 local debug = require 'src.debug'
 
-local GRAVITY = 40
-local ANIT_GRAVITY = -8
+local GRAVITY = 30
+local ANIT_GRAVITY = -6
 
 --#region Bird
 ---@class Bird
