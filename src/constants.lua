@@ -6,4 +6,6 @@ M.WINDOW_HEIGHT = 720
 M.VIRTUAL_WIDTH = 512
 M.VIRTUAL_HEIGHT = 288
 
+M.test = 'hej'
+
 return M
