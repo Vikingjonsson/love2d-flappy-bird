@@ -1,4 +1,4 @@
-# Flappy-bird
+# Flappy bird
 Flappy bird, created with Löve2d.
 
 ## Game Controls
