@@ -11,8 +11,13 @@ M.SOUNDS = {
 
 ---Play sound
 ---@param sound_name string
-function M.play_sound(sound_name)
-  if not M.SOUNDS[sound_name]:isPlaying() and not IS_MUTED then
+---@param allow_overlap ?boolean allow same sound to overlap
+function M.play_sound(sound_name, allow_overlap)
+  if not M.SOUNDS[sound_name]:isPlaying() and not allow_overlap and not IS_MUTED then
+    love.audio.play(M.SOUNDS[sound_name])
+  end
+
+  if allow_overlap and not IS_MUTED then
     love.audio.play(M.SOUNDS[sound_name])
   end
 end

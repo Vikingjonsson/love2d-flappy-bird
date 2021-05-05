@@ -62,7 +62,7 @@ function Bird:update(dt)
 
   if keyboard.was_key_pressed('space') then
     self.dy = ANIT_GRAVITY
-    sound.play_sound('jump')
+    sound.play_sound('jump', true)
   end
 end
 
