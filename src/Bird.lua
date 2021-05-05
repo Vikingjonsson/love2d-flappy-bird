@@ -3,6 +3,7 @@ local constant = require 'src.constants'
 local keyboard = require 'src.keyboard'
 local collission_detection = require 'src.collision'
 local debug = require 'src.debug'
+local Signal = require 'lib.hump.signal'
 
 local GRAVITY = 30
 local ANIT_GRAVITY = -6
@@ -31,6 +32,17 @@ function Bird:init()
     width = self.width - HIT_BOX_END_OFFSET,
     height = self.height - HIT_BOX_END_OFFSET
   }
+end
+
+---@param alive boolean
+function Bird:set_is_alive(alive)
+  self.is_alive = alive
+
+  if not self.is_alive then
+    Signal.emit('player_is_dead')
+    love.audio.play(SOUNDS.hurt)
+    love.audio.play(SOUNDS.explosion)
+  end
 end
 
 ---Checks if Bird has collides

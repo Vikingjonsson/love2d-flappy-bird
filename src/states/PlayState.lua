@@ -1,12 +1,10 @@
 local Class = require 'lib.hump.class'
 local Signal = require 'lib.hump.signal'
 local BaseState = require 'src.states.BaseState'
-
-local push = require 'lib.push.push'
-local constants = require 'src.constants'
 local Bird = require 'src.Bird'
 local PipePair = require 'src.PipePair'
-local keyboard = require 'src.keyboard'
+local constants = require 'src.constants'
+local store = require 'src.store'
 
 local DEFAULT_SPAWN_TIME = 2.5
 local spawn_timer = DEFAULT_SPAWN_TIME
@@ -24,7 +22,6 @@ local PlayState = Class {__includes = BaseState}
 function PlayState:init()
   self.bird = Bird() ---@type Bird
   self.pipePairs = {} ---@type PipePair[]
-  self.score = 0
 end
 
 function PlayState:enter(...)
@@ -54,17 +51,16 @@ function PlayState:update(dt)
       self.bird:has_collision(pair.pipes.top.hit_box) or
         self.bird:has_collision(pair.pipes.bottom.hit_box)
      then
-      self.bird.is_alive = false
-      Signal.emit('player_died', self.bird.is_alive)
-    end
-
-    if pair.x < -pair.width then
-      pair.remove = true
+      self.bird:set_is_alive(false)
     end
 
     if pair.x < self.bird.x and self.bird.is_alive and not pair.is_scored then
       pair.is_scored = true
-      self.score = self.score + 1
+      Signal.emit('score', 1)
+    end
+
+    if pair.x < -pair.width then
+      pair.remove = true
     end
 
     if pair.remove then
@@ -77,8 +73,16 @@ function PlayState:render()
   for _, pair in pairs(self.pipePairs) do
     pair:draw()
   end
-
   self.bird:draw()
+
+  love.graphics.setFont(FONTS.medium_font)
+  love.graphics.printf(
+    'Score: ' .. store.get_value('score'),
+    12,
+    12,
+    constants.VIRTUAL_WIDTH,
+    'left'
+  )
 end
 
 return PlayState

@@ -1,10 +1,13 @@
-if os.getenv('LOCAL_LUA_DEBUGGER_VSCODE') == '1' then
+local is_debuger_active = os.getenv('LOCAL_LUA_DEBUGGER_VSCODE') == '1'
+if is_debuger_active then
   require('lldebugger').start()
 end
 
-IS_DEBUGGING = true
+IS_DEBUGGING = is_debuger_active or false
+IS_MUTED = true
 
 local push = require 'lib.push.push'
+local Signal = require 'lib.hump.signal'
 local constants = require 'src.constants'
 local keyboard = require 'src.keyboard'
 local StateMachine = require 'src.StateMachine'
@@ -12,7 +15,6 @@ local PlayState = require 'src.states.PlayState'
 local CountDownState = require 'src.states.CountDownState'
 local ScoreScreenState = require 'src.states.ScoreScreenState'
 local TitleScreenState = require 'src.states.TitleScreenState'
-local Signal = require 'lib.hump.signal'
 
 local background = {
   sprite = love.graphics.newImage('assets/sprites/background.png'),
@@ -38,6 +40,14 @@ FONTS = {
   huge_font = love.graphics.newFont('assets/fonts/font.ttf', 56)
 }
 
+SOUNDS = {
+  explosion = love.audio.newSource('assets/sounds/explosion.wav', 'static'),
+  hurt = love.audio.newSource('assets/sounds/hurt.wav', 'static'),
+  score = love.audio.newSource('assets/sounds/score.wav', 'static'),
+  jump = love.audio.newSource('assets/sounds/jump.wav', 'static'),
+  music = love.audio.newSource('assets/sounds/music.mp3', 'stream')
+}
+
 local is_paused = false
 
 ---@type StateMachine
@@ -54,15 +64,22 @@ local game_state =
       return PlayState()
     end,
     score = function()
-      ScoreScreenState()
+      return ScoreScreenState()
     end
   }
 )
 
 Signal.register(
-  'player_died',
-  function(is_alive)
+  'player_is_dead',
+  function()
     is_paused = true
+  end
+)
+
+Signal.register(
+  'start_game',
+  function()
+    game_state:change('play')
   end
 )
 
@@ -72,6 +89,7 @@ end
 
 function love.keypressed(key)
   keyboard.add_pressed_keys(key)
+
   if key == 'escape' then
     love.event.quit(1)
   end
@@ -87,6 +105,9 @@ function love.load()
   math.randomseed(os.time())
   love.window.setTitle('Flappy bird')
   love.graphics.setDefaultFilter('nearest', 'nearest')
+  if not SOUNDS.music:isPlaying() and not IS_MUTED then
+    love.audio.play(SOUNDS.music)
+  end
 
   push:setupScreen(
     constants.VIRTUAL_WIDTH,
@@ -101,7 +122,7 @@ function love.load()
     }
   )
 
-  game_state:change('play')
+  game_state:change('title')
 end
 
 function love.update(dt)
@@ -112,7 +133,6 @@ function love.update(dt)
   background.x = (background.x - background.speed * dt) % background.looping_point
   game_state:update(dt)
   ground.x = (ground.x - ground.speed * dt) % ground.looping_point
-
   keyboard.reset_pressed_keys()
 end
 
