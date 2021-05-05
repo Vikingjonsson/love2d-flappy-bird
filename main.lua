@@ -1,11 +1,9 @@
-local is_debuger_active = os.getenv('LOCAL_LUA_DEBUGGER_VSCODE') == '1'
-if is_debuger_active then
+local is_debugger_active = os.getenv('LOCAL_LUA_DEBUGGER_VSCODE') == '1'
+if is_debugger_active then
   require('lldebugger').start()
 end
 
-IS_DEBUGGING = is_debuger_active or false
-IS_MUTED = true
-
+require 'src.gloabals'
 local push = require 'lib.push.push'
 local Signal = require 'lib.hump.signal'
 local constants = require 'src.constants'
@@ -15,6 +13,8 @@ local PlayState = require 'src.states.PlayState'
 local CountDownState = require 'src.states.CountDownState'
 local ScoreScreenState = require 'src.states.ScoreScreenState'
 local TitleScreenState = require 'src.states.TitleScreenState'
+
+IS_DEBUGGING = is_debugger_active or false
 
 local background = {
   sprite = love.graphics.newImage('assets/sprites/background.png'),
@@ -48,8 +48,6 @@ SOUNDS = {
   music = love.audio.newSource('assets/sounds/music.mp3', 'stream')
 }
 
-local is_paused = false
-
 ---@type StateMachine
 local game_state =
   StateMachine(
@@ -72,7 +70,8 @@ local game_state =
 Signal.register(
   'player_is_dead',
   function()
-    is_paused = true
+    IS_PAUSED = true
+    game_state:change('score')
   end
 )
 
@@ -94,10 +93,10 @@ function love.keypressed(key)
     love.event.quit(1)
   end
 
-  if key == 'p' and not is_paused then
-    is_paused = true
-  elseif key == 'p' and is_paused then
-    is_paused = false
+  if key == 'p' and not IS_PAUSED then
+    IS_PAUSED = true
+  elseif key == 'p' and IS_PAUSED then
+    IS_PAUSED = false
   end
 end
 
@@ -126,7 +125,7 @@ function love.load()
 end
 
 function love.update(dt)
-  if is_paused then
+  if IS_PAUSED then
     return
   end
 
