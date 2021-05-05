@@ -18,7 +18,6 @@ local sound = require 'src.sound'
 
 IS_DEBUGGING = is_debugger_active or false
 
-
 local background = {
   sprite = love.graphics.newImage('assets/sprites/background.png'),
   looping_point = -413,
@@ -34,13 +33,6 @@ local ground = {
   looping_point = -constants.VIRTUAL_WIDTH,
   x = 0,
   y = constants.VIRTUAL_HEIGHT - 16
-}
-
-FONTS = {
-  small_font = love.graphics.newFont('assets/fonts/font.ttf', 8),
-  medium_font = love.graphics.newFont('assets/fonts/flappy.ttf', 14),
-  large_font = love.graphics.newFont('assets/fonts/flappy.ttf', 28),
-  huge_font = love.graphics.newFont('assets/fonts/font.ttf', 56)
 }
 
 ---@type StateMachine
@@ -65,14 +57,7 @@ local game_state =
 Signal.register(
   'player_is_dead',
   function()
-    IS_PAUSED = true
-    Timer.after(
-      0.5,
-      function()
-        IS_PAUSED = false
-        game_state:change('score')
-      end
-    )
+    game_state:change('score')
   end
 )
 

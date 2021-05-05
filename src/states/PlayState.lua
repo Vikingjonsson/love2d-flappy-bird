@@ -5,6 +5,7 @@ local Bird = require 'src.Bird'
 local PipePair = require 'src.PipePair'
 local constants = require 'src.constants'
 local store = require 'src.store'
+local text = require 'src.text'
 
 local SCROLL_SPEED = 60
 local DEFAULT_SPAWN_TIME = 2.5
@@ -76,8 +77,8 @@ function PlayState:render()
   end
   self.bird:draw()
 
-  love.graphics.setFont(FONTS.medium_font)
-  love.graphics.printf(
+  text.printf(
+    'medium',
     'Score: ' .. store.get_value('score'),
     12,
     12,

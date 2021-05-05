@@ -3,6 +3,8 @@ local Signal = require 'lib.hump.signal'
 local BaseState = require 'src.states.BaseState'
 local constants = require 'src.constants'
 local keyboard = require 'src.keyboard'
+local text = require 'src.text'
+
 --#region
 ---@class TitleScreenState
 local TitleScreenState = Class {__includes = BaseState}
@@ -19,12 +21,13 @@ end
 function TitleScreenState:update(dt)
   if keyboard.was_key_pressed('space') then
     Signal.emit('start_game')
+    Signal.emit('reset')
   end
 end
 
 function TitleScreenState:render()
-  love.graphics.setFont(FONTS.large_font)
-  love.graphics.printf(
+  text.printf(
+    'large',
     'Flappy Bird',
     0,
     constants.VIRTUAL_HEIGHT / 3,
@@ -33,8 +36,8 @@ function TitleScreenState:render()
   )
 
   if math.floor(love.timer.getTime()) % 2 == 0 then
-    love.graphics.setFont(FONTS.medium_font)
-    love.graphics.printf(
+    text.printf(
+      'medium',
       'Press Space to Start!',
       0,
       constants.VIRTUAL_HEIGHT / 2,

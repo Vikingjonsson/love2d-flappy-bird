@@ -4,6 +4,7 @@ local BaseState = require 'src.states.BaseState'
 local constants = require 'src.constants'
 local store = require 'src.store'
 local keyboard = require 'src.keyboard'
+local text = require 'src.text'
 
 --#region
 ---@class ScoreScreenState
@@ -14,6 +15,7 @@ function ScoreScreenState:init()
 end
 
 function ScoreScreenState:enter()
+  Signal.emit('load_score')
 end
 
 function ScoreScreenState:exit()
@@ -26,18 +28,27 @@ function ScoreScreenState:update(dt)
 end
 
 function ScoreScreenState:render()
-  love.graphics.setFont(FONTS.large_font)
-  love.graphics.printf(
+  text.printf(
+    'large',
     'Score: ' .. store.get_value('score'),
     0,
-    constants.VIRTUAL_HEIGHT / 3,
+    constants.VIRTUAL_HEIGHT / 4,
+    constants.VIRTUAL_WIDTH,
+    'center'
+  )
+
+  text.printf(
+    'medium',
+    'Best score: ' .. store.get_value('best_score'),
+    0,
+    constants.VIRTUAL_HEIGHT / 3 + 12,
     constants.VIRTUAL_WIDTH,
     'center'
   )
 
   if math.floor(love.timer.getTime()) % 2 == 0 then
-    love.graphics.setFont(FONTS.medium_font)
-    love.graphics.printf(
+    text.printf(
+      'medium',
       'Press Space to Start!',
       0,
       constants.VIRTUAL_HEIGHT / 2,

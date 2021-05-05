@@ -3,7 +3,7 @@ local bitser = require 'lib.bitser.bitser'
 local log = require 'src.log'
 
 local function copy_table(src)
-  local t ={}
+  local t = {}
   for key, value in pairs(src) do
     t[key] = value
   end
@@ -11,18 +11,20 @@ local function copy_table(src)
   return t
 end
 
+local SAVE_FILE = 'high_score.dat'
+
 local DEFAULT_STATE = {
-  score = 0
+  score = 0,
+  best_score = 0
 }
 
-local M={}
-M.state = copy_table(DEFAULT_STATE)
+local M = copy_table(DEFAULT_STATE)
 
 ---@param key string
 ---@param fallback ?string|number|table
 ---@return string|number|table|nil result
 function M.get_value(key, fallback)
-  local value = M.state[key]
+  local value = M[key]
   if value then
     return value
   end
@@ -31,10 +33,20 @@ function M.get_value(key, fallback)
 end
 
 Signal.register(
+  'load_score',
+  function()
+    if love.filesystem.getInfo(SAVE_FILE) then
+      M.best_score = bitser.loadLoveFile(SAVE_FILE)
+    else
+      bitser.dumpLoveFile(SAVE_FILE, M.best_score)
+    end
+  end
+)
+
+Signal.register(
   'reset',
   function()
-    bitser.dumpLoveFile('save_point.dat', M.state)
-    M.state = copy_table(DEFAULT_STATE)
+    M.score = 0
   end
 )
 
@@ -42,10 +54,11 @@ Signal.register(
   'score',
   function(value)
     M.score = M.score + value
+
+    if M.score > M.best_score then
+      bitser.dumpLoveFile(SAVE_FILE, M.score)
+    end
   end
 )
-
-local value = bitser.loadLoveFile('save_point.dat')
-log.dump(value)
 
 return M
