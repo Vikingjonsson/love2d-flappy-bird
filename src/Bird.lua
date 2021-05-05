@@ -23,6 +23,7 @@ function Bird:init()
   self.y = (constant.VIRTUAL_HEIGHT / 2) - (self.height / 2)
   self.x = (constant.VIRTUAL_WIDTH / 3) - (self.width / 2)
   self.dy, self.dx = 0, 0
+  self.is_alive = true
 
   self.hit_box = {
     x = self.x + HIT_BOX_START_OFFSET,

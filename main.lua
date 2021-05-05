@@ -2,13 +2,17 @@ if os.getenv('LOCAL_LUA_DEBUGGER_VSCODE') == '1' then
   require('lldebugger').start()
 end
 
-_G.debugging = false
+IS_DEBUGGING = true
 
 local push = require 'lib.push.push'
 local constants = require 'src.constants'
-local Bird = require 'src.Bird'
-local PipePair = require 'src.PipePair'
 local keyboard = require 'src.keyboard'
+local StateMachine = require 'src.StateMachine'
+local PlayState = require 'src.states.PlayState'
+local CountDownState = require 'src.states.CountDownState'
+local ScoreScreenState = require 'src.states.ScoreScreenState'
+local TitleScreenState = require 'src.states.TitleScreenState'
+local Signal = require 'lib.hump.signal'
 
 local background = {
   sprite = love.graphics.newImage('assets/sprites/background.png'),
@@ -27,13 +31,40 @@ local ground = {
   y = constants.VIRTUAL_HEIGHT - 16
 }
 
-local spawn_timer = 2
-local player = Bird() ---@type Bird
-local pipePairs = {} ---@type PipePair[]
-local last_y =
-  love.math.random(constants.VIRTUAL_HEIGHT / 2 - 70, constants.VIRTUAL_HEIGHT / 2 + 40)
+FONTS = {
+  small_font = love.graphics.newFont('assets/fonts/font.ttf', 8),
+  medium_font = love.graphics.newFont('assets/fonts/flappy.ttf', 14),
+  large_font = love.graphics.newFont('assets/fonts/flappy.ttf', 28),
+  huge_font = love.graphics.newFont('assets/fonts/font.ttf', 56)
+}
 
 local is_paused = false
+
+---@type StateMachine
+local game_state =
+  StateMachine(
+  {
+    title = function()
+      return TitleScreenState()
+    end,
+    countdown = function()
+      return CountDownState()
+    end,
+    play = function()
+      return PlayState()
+    end,
+    score = function()
+      ScoreScreenState()
+    end
+  }
+)
+
+Signal.register(
+  'player_died',
+  function(is_alive)
+    is_paused = true
+  end
+)
 
 function love.resize(w, h)
   push:resize(w, h)
@@ -54,7 +85,6 @@ end
 
 function love.load()
   math.randomseed(os.time())
-
   love.window.setTitle('Flappy bird')
   love.graphics.setDefaultFilter('nearest', 'nearest')
 
@@ -70,6 +100,8 @@ function love.load()
       vsync = true
     }
   )
+
+  game_state:change('play')
 end
 
 function love.update(dt)
@@ -78,41 +110,8 @@ function love.update(dt)
   end
 
   background.x = (background.x - background.speed * dt) % background.looping_point
+  game_state:update(dt)
   ground.x = (ground.x - ground.speed * dt) % ground.looping_point
-  player:update(dt)
-
-  spawn_timer = spawn_timer - dt
-  if spawn_timer <= 0 then
-    spawn_timer = 2.5
-    table.insert(pipePairs, PipePair(last_y, ground.speed))
-
-    -- TODO: remove magic numbers
-    local max_y = math.min(last_y + 20, constants.VIRTUAL_HEIGHT - 50)
-    local min_y = math.max(50, last_y - 70)
-    last_y = math.random(min_y, max_y)
-  end
-
-  for index, pair in ipairs(pipePairs) do
-    pair:update(dt)
-    local top, bottom = pair.pipes.top.hit_box, pair.pipes.bottom.hit_box
-
-    if player:has_collision(top) or player:has_collision(bottom) then
-      is_paused = true
-    end
-
-    if pair.x < -pair.width then
-      pair.remove = true
-    end
-  end
-
-  for i = #pipePairs, 1, -1 do
-    if pipePairs[i].remove then
-      local pair = pipePairs[i]
-      table.remove(pipePairs, 0)
-      table.remove(pipePairs, 0)
-      table.remove(pipePairs, i)
-    end
-  end
 
   keyboard.reset_pressed_keys()
 end
@@ -120,11 +119,7 @@ end
 function love.draw()
   push:start()
   love.graphics.draw(background.sprite, background.x, background.y)
-  for _, pair in pairs(pipePairs) do
-    pair:draw()
-  end
-
+  game_state:render()
   love.graphics.draw(ground.sprite, ground.x, ground.y)
-  player:draw()
   push:finish()
 end

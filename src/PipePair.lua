@@ -15,8 +15,9 @@ local PipePair = Class {}
 function PipePair:init(y, speed)
   self.x = constants.VIRTUAL_WIDTH
   self.y = y + GAP_SIZE / 2
-  self.remove = false
   self.speed = speed or 60
+  self.remove = false
+  self.is_scored = false
 
   local top_pipe = Pipe('top', self.y - PIPE_HEIGHT - (GAP_SIZE / 2), self.x, self.speed) ---@type Pipe
   local bottom_pipe = Pipe('bottom', self.y + PIPE_HEIGHT + (GAP_SIZE / 2), self.x, self.speed) ---@type Pipe
@@ -32,6 +33,8 @@ end
 ---Update PipePair
 ---@param dt number
 function PipePair:update(dt)
+  self.x = self.x - self.speed * dt
+
   self.pipes.top:update(dt)
   self.pipes.bottom:update(dt)
 end

@@ -8,13 +8,13 @@ local StateMachine = Class {}
 ---@param states table<string, function> table containting game states and state functions
 function StateMachine:init(states)
   self.empty = {
-    enter = function(...)
+    ['enter'] = function(...)
     end,
-    update = function(dt)
+    ['update'] = function(dt)
     end,
-    render = function()
+    ['render'] = function()
     end,
-    exit = function(...)
+    ['exit'] = function(...)
     end
   }
 

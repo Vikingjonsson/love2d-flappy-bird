@@ -1,4 +1,5 @@
-local Class = require 'lib.hump.Class'
+local Class = require 'lib.hump.class'
+local Signal = require 'lib.hump.signal'
 local BaseState = require 'src.states.BaseState'
 
 local push = require 'lib.push.push'
@@ -15,8 +16,6 @@ local SCROLL_SPEED = 60
 local last_y =
   love.math.random(constants.VIRTUAL_HEIGHT / 2 - 70, constants.VIRTUAL_HEIGHT / 2 + 40)
 
-local is_paused = false
-
 --#region
 ---@class PlayState
 local PlayState = Class {__includes = BaseState}
@@ -25,9 +24,10 @@ local PlayState = Class {__includes = BaseState}
 function PlayState:init()
   self.bird = Bird() ---@type Bird
   self.pipePairs = {} ---@type PipePair[]
+  self.score = 0
 end
 
-function PlayState:enter()
+function PlayState:enter(...)
 end
 
 function PlayState:exit()
@@ -36,6 +36,7 @@ end
 function PlayState:update(dt)
   self.bird:update(dt)
 
+  spawn_timer = spawn_timer - dt
   if spawn_timer <= 0 then
     spawn_timer = DEFAULT_SPAWN_TIME
     table.insert(self.pipePairs, PipePair(last_y, SCROLL_SPEED))
@@ -46,12 +47,38 @@ function PlayState:update(dt)
     last_y = math.random(min_y, max_y)
   end
 
-  for _, pipePair in ipairs(self.pipePairs) do
-    pipePair:update(dt)
+  for key, pair in pairs(self.pipePairs) do
+    pair:update(dt)
+
+    if
+      self.bird:has_collision(pair.pipes.top.hit_box) or
+        self.bird:has_collision(pair.pipes.bottom.hit_box)
+     then
+      self.bird.is_alive = false
+      Signal.emit('player_died', self.bird.is_alive)
+    end
+
+    if pair.x < -pair.width then
+      pair.remove = true
+    end
+
+    if pair.x < self.bird.x and self.bird.is_alive and not pair.is_scored then
+      pair.is_scored = true
+      self.score = self.score + 1
+    end
+
+    if pair.remove then
+      table.remove(self.pipePairs, key)
+    end
   end
 end
 
 function PlayState:render()
+  for _, pair in pairs(self.pipePairs) do
+    pair:draw()
+  end
+
+  self.bird:draw()
 end
 
 return PlayState
