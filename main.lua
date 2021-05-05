@@ -3,9 +3,10 @@ if is_debugger_active then
   require('lldebugger').start()
 end
 
-require 'src.gloabals'
+require 'src.globals'
 local push = require 'lib.push.push'
 local Signal = require 'lib.hump.signal'
+local Timer = require 'lib.hump.timer'
 local constants = require 'src.constants'
 local keyboard = require 'src.keyboard'
 local StateMachine = require 'src.StateMachine'
@@ -13,8 +14,10 @@ local PlayState = require 'src.states.PlayState'
 local CountDownState = require 'src.states.CountDownState'
 local ScoreScreenState = require 'src.states.ScoreScreenState'
 local TitleScreenState = require 'src.states.TitleScreenState'
+local sound = require 'src.sound'
 
 IS_DEBUGGING = is_debugger_active or false
+
 
 local background = {
   sprite = love.graphics.newImage('assets/sprites/background.png'),
@@ -40,14 +43,6 @@ FONTS = {
   huge_font = love.graphics.newFont('assets/fonts/font.ttf', 56)
 }
 
-SOUNDS = {
-  explosion = love.audio.newSource('assets/sounds/explosion.wav', 'static'),
-  hurt = love.audio.newSource('assets/sounds/hurt.wav', 'static'),
-  score = love.audio.newSource('assets/sounds/score.wav', 'static'),
-  jump = love.audio.newSource('assets/sounds/jump.wav', 'static'),
-  music = love.audio.newSource('assets/sounds/music.mp3', 'stream')
-}
-
 ---@type StateMachine
 local game_state =
   StateMachine(
@@ -71,7 +66,13 @@ Signal.register(
   'player_is_dead',
   function()
     IS_PAUSED = true
-    game_state:change('score')
+    Timer.after(
+      0.5,
+      function()
+        IS_PAUSED = false
+        game_state:change('score')
+      end
+    )
   end
 )
 
@@ -104,9 +105,7 @@ function love.load()
   math.randomseed(os.time())
   love.window.setTitle('Flappy bird')
   love.graphics.setDefaultFilter('nearest', 'nearest')
-  if not SOUNDS.music:isPlaying() and not IS_MUTED then
-    love.audio.play(SOUNDS.music)
-  end
+  sound.play_sound('music')
 
   push:setupScreen(
     constants.VIRTUAL_WIDTH,
@@ -125,6 +124,8 @@ function love.load()
 end
 
 function love.update(dt)
+  Timer.update(dt)
+
   if IS_PAUSED then
     return
   end

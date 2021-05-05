@@ -1,9 +1,10 @@
 local Class = require 'lib.hump.class'
+local Signal = require 'lib.hump.signal'
 local constant = require 'src.constants'
 local keyboard = require 'src.keyboard'
 local collission_detection = require 'src.collision'
 local debug = require 'src.debug'
-local Signal = require 'lib.hump.signal'
+local sound = require 'src.sound'
 
 local GRAVITY = 30
 local ANIT_GRAVITY = -6
@@ -39,9 +40,9 @@ function Bird:set_is_alive(alive)
   self.is_alive = alive
 
   if not self.is_alive then
+    sound.play_sound('hurt')
+    sound.play_sound('explosion')
     Signal.emit('player_is_dead')
-    love.audio.play(SOUNDS.hurt)
-    love.audio.play(SOUNDS.explosion)
   end
 end
 
@@ -61,6 +62,7 @@ function Bird:update(dt)
 
   if keyboard.was_key_pressed('space') then
     self.dy = ANIT_GRAVITY
+    sound.play_sound('jump')
   end
 end
 

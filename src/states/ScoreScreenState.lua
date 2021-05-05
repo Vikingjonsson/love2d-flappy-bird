@@ -1,7 +1,9 @@
-local Class = require 'lib.hump.Class'
+local Class = require 'lib.hump.class'
+local Signal = require 'lib.hump.signal'
 local BaseState = require 'src.states.BaseState'
 local constants = require 'src.constants'
 local store = require 'src.store'
+local keyboard = require 'src.keyboard'
 
 --#region
 ---@class ScoreScreenState
@@ -18,6 +20,9 @@ function ScoreScreenState:exit()
 end
 
 function ScoreScreenState:update(dt)
+  if keyboard.was_key_pressed('space') then
+    Signal.emit('start_game')
+  end
 end
 
 function ScoreScreenState:render()

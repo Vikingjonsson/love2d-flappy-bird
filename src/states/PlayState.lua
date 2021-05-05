@@ -6,9 +6,9 @@ local PipePair = require 'src.PipePair'
 local constants = require 'src.constants'
 local store = require 'src.store'
 
-local DEFAULT_SPAWN_TIME = 2.5
-local spawn_timer = DEFAULT_SPAWN_TIME
 local SCROLL_SPEED = 60
+local DEFAULT_SPAWN_TIME = 2.5
+local spawn_timer = 0.5
 
 -- TODO: remove magic numbers
 local last_y =
@@ -25,6 +25,7 @@ function PlayState:init()
 end
 
 function PlayState:enter(...)
+  Signal.emit('reset')
 end
 
 function PlayState:exit()
@@ -54,7 +55,7 @@ function PlayState:update(dt)
       self.bird:set_is_alive(false)
     end
 
-    if pair.x < self.bird.x and self.bird.is_alive and not pair.is_scored then
+    if pair.x + pair.width < self.bird.x and self.bird.is_alive and not pair.is_scored then
       pair.is_scored = true
       Signal.emit('score', 1)
     end
