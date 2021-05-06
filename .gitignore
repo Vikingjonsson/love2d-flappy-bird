@@ -1,0 +1,6 @@
+# packages
+*.zip
+*.love
+
+# builds
+/builds
