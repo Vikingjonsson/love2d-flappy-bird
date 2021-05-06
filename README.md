@@ -2,8 +2,9 @@
 Flappy bird, created with Löve2d.
 
 ## Game Controls
-Press **SPACE** to jump/start/restart.
+Press **SPACE** to start and jump.
 Press **P** to pause.
+Press **R** to restart.
 
 
 ## Quickstart
