@@ -1,10 +1,14 @@
 dev:
 	love .
 
+BUILD_NUMBER := $(words $(wildcard ./builds/*.love))
 build:
-	echo "build"
-	zip -9 -r ./builds/Game.love assets/ src/ lib/ main.lua
+	echo "Build $(BUILD_NUMBER)"
+	mkdir -p builds
+	zip -9 -r ./builds/Game$(BUILD_NUMBER).love assets/ src/ lib/ main.lua
 
+
+LATEST_BUILD := $(shell echo ${BUILD_NUMBER}-1 | bc)
 run:
-	echo "play"
-	love ./builds/Game.love
+	echo "play $(LATEST_BUILD)"
+	love ./builds/Game$(LATEST_BUILD).love
