@@ -22,8 +22,8 @@ function Bird:init()
   self.width = self.sprite:getWidth()
   self.height = self.sprite:getHeight()
 
-  self.y = (constant.VIRTUAL_HEIGHT / 2) - (self.height / 2)
-  self.x = (constant.VIRTUAL_WIDTH / 3) - (self.width / 2)
+  self.y = (constant.VIRTUAL_HEIGHT / 3) - (self.height / 2)
+  self.x = (constant.VIRTUAL_WIDTH / 2) - (self.width / 2)
   self.dy, self.dx = 0, 0
   self.is_alive = true
 

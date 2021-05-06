@@ -80,7 +80,7 @@ function love.keypressed(key)
   end
 
   if key == 'p' and not IS_PAUSED then
-    IS_PAUSED = true
+    IS_PAUSED = game_state:get_current_state() == 'play' and true or false
   elseif key == 'p' and IS_PAUSED then
     IS_PAUSED = false
   end

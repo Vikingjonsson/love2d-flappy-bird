@@ -20,6 +20,13 @@ function StateMachine:init(states)
 
   self.states = states or {}
   self.current = self.empty
+  self.current_state_name = ''
+end
+
+---Returns the current currently active state
+---@return string state name
+function StateMachine:get_current_state()
+  return self.current_state_name
 end
 
 function StateMachine:change(state_name, enter_params)
@@ -27,6 +34,7 @@ function StateMachine:change(state_name, enter_params)
 
   self.current:exit()
   self.current = self.states[state_name]()
+  self.current_state_name = state_name
   self.current:enter(enter_params)
 end
 

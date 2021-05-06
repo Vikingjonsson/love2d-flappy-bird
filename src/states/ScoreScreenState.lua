@@ -22,7 +22,7 @@ function ScoreScreenState:exit()
 end
 
 function ScoreScreenState:update(dt)
-  if keyboard.was_key_pressed('space') then
+  if keyboard.was_key_pressed('r') then
     Signal.emit('start_game')
   end
 end
@@ -49,7 +49,7 @@ function ScoreScreenState:render()
   if math.floor(love.timer.getTime()) % 2 == 0 then
     text.printf(
       'medium',
-      'Press Space to Start!',
+      'Press R to restart!',
       0,
       constants.VIRTUAL_HEIGHT / 2,
       constants.VIRTUAL_WIDTH,

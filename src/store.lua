@@ -19,6 +19,7 @@ local DEFAULT_STATE = {
 }
 
 local M = copy_table(DEFAULT_STATE)
+-- bitser.dumpLoveFile(SAVE_FILE, 1)
 
 ---@param key string
 ---@param fallback ?string|number|table
@@ -54,7 +55,12 @@ Signal.register(
   'score',
   function(value)
     M.score = M.score + value
+  end
+)
 
+Signal.register(
+  'player_is_dead',
+  function()
     if M.score > M.best_score then
       bitser.dumpLoveFile(SAVE_FILE, M.score)
     end
