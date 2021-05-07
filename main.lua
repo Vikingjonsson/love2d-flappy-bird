@@ -1,9 +1,3 @@
-local is_debugger_active = os.getenv('LOCAL_LUA_DEBUGGER_VSCODE') == '1'
-if is_debugger_active then
-  require('lldebugger').start()
-end
-
-require 'src.globals'
 local log = require 'src.log'
 local push = require 'lib.push.push'
 local Signal = require 'lib.hump.signal'
@@ -17,8 +11,22 @@ local ScoreScreenState = require 'src.states.ScoreScreenState'
 local TitleScreenState = require 'src.states.TitleScreenState'
 local sound = require 'src.sound'
 
-IS_DEBUGGING = is_debugger_active or true
-log.set_active(IS_DEBUGGING)
+local is_debugger_active = os.getenv('LOCAL_LUA_DEBUGGER_VSCODE') == '1'
+
+if is_debugger_active then
+  IS_DEBUGGING = true
+  require('lldebugger').start()
+end
+
+local function set_debugging_from_args(args)
+  for _, value in ipairs(args) do
+    if value == 'debug' then
+      IS_DEBUGGING = true
+    end
+  end
+
+  log.set_active(IS_DEBUGGING)
+end
 
 local background = {
   sprite = love.graphics.newImage('assets/sprites/background.png'),
@@ -88,7 +96,11 @@ function love.keypressed(key)
   end
 end
 
-function love.load()
+
+
+function love.load(args)
+  set_debugging_from_args(args)
+
   math.randomseed(os.time())
   love.window.setTitle('Flappy bird')
   love.graphics.setDefaultFilter('nearest', 'nearest')
