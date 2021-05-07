@@ -4,6 +4,7 @@ if is_debugger_active then
 end
 
 require 'src.globals'
+local log = require 'src.log'
 local push = require 'lib.push.push'
 local Signal = require 'lib.hump.signal'
 local Timer = require 'lib.hump.timer'
@@ -16,7 +17,8 @@ local ScoreScreenState = require 'src.states.ScoreScreenState'
 local TitleScreenState = require 'src.states.TitleScreenState'
 local sound = require 'src.sound'
 
-IS_DEBUGGING = is_debugger_active or false
+IS_DEBUGGING = is_debugger_active or true
+log.set_active(IS_DEBUGGING)
 
 local background = {
   sprite = love.graphics.newImage('assets/sprites/background.png'),

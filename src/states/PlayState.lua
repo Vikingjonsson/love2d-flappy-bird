@@ -9,7 +9,7 @@ local text = require 'src.text'
 
 local SCROLL_SPEED = 60
 local DEFAULT_SPAWN_TIME = 2.5
-local DEFAULT_COUNTDOWN_TIME = 3
+local DEFAULT_COUNTDOWN_TIME = 2
 
 local spawn_timer = 0.5
 local countdown_timer = DEFAULT_COUNTDOWN_TIME
@@ -44,9 +44,19 @@ function PlayState:update(dt)
     return
   end
 
-  spawn_timer = spawn_timer - dt
-  self.bird:update(dt)
+  if self.bird.is_alive then
+    self.bird:update(dt)
+  end
 
+  if self.bird.y < 0 then
+    self.bird.y = 0
+  end
+
+  if self.bird.y + self.bird.height > constants.VIRTUAL_HEIGHT - 16 then
+    self.bird:set_is_alive(false)
+  end
+
+  spawn_timer = spawn_timer - dt
   if spawn_timer <= 0 then
     spawn_timer = DEFAULT_SPAWN_TIME
     table.insert(self.pipePairs, PipePair(last_y, SCROLL_SPEED))
@@ -111,7 +121,7 @@ function PlayState:render()
   if countdown_timer > 0 and not IS_PAUSED then
     text.printf(
       'large',
-      'Ready?\n' .. math.floor(countdown_timer),
+      math.floor(countdown_timer)> 0 and 'Ready?' or 'Jump!',
       0,
       constants.VIRTUAL_HEIGHT / 2 - 12,
       constants.VIRTUAL_WIDTH,

@@ -6,10 +6,21 @@ local store = require 'src.store'
 local keyboard = require 'src.keyboard'
 local text = require 'src.text'
 
+
+local function has_beaten_best_score()
+  local score = store.get_value('score')
+  local best_score = store.get_value('best_score')
+
+  return score > best_score
+end
+
+local function get_score_text()
+  return has_beaten_best_score() and 'New best score!' or 'Best score: ' .. store.get_value('best_score')
+end
+
 --#region
 ---@class ScoreScreenState
 local ScoreScreenState = Class {__includes = BaseState}
-
 ---ScoreScreenState state constructor
 function ScoreScreenState:init()
 end
@@ -39,7 +50,7 @@ function ScoreScreenState:render()
 
   text.printf(
     'medium',
-    'Best score: ' .. store.get_value('best_score'),
+    get_score_text() ,
     0,
     constants.VIRTUAL_HEIGHT / 3 + 12,
     constants.VIRTUAL_WIDTH,

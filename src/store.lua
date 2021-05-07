@@ -41,6 +41,8 @@ Signal.register(
     else
       bitser.dumpLoveFile(SAVE_FILE, M.best_score)
     end
+
+    log.dump(M.best_score, 'load_score')
   end
 )
 
@@ -55,15 +57,18 @@ Signal.register(
   'score',
   function(value)
     M.score = M.score + value
+    log.dump(type(M.score), 'score')
   end
 )
 
 Signal.register(
   'player_is_dead',
   function()
-    if M.score > M.best_score then
+    if tonumber(M.score) > tonumber(M.best_score) then
       bitser.dumpLoveFile(SAVE_FILE, M.score)
     end
+
+    log.dump(M.best_score, 'player_is_dead:')
   end
 )
 

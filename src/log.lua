@@ -1,5 +1,5 @@
 LOG = {}
-local active = true
+local active = false
 
 ---@param is_active boolean
 function LOG.set_active(is_active)
@@ -8,8 +8,9 @@ end
 
 ---Pritty print values
 ---@param value string value to print
----@param indent ?number space to indent log
-function LOG.dump(value, indent)
+---@param tag ?string [optional] tag the log message
+---@param indent ?number [optional] space to indent log defaults to 2
+function LOG.dump(value, tag, indent)
   local function print_divider()
     print('---------------------')
   end
@@ -19,7 +20,7 @@ function LOG.dump(value, indent)
   end
 
   if not indent then
-    indent = 0
+    indent = 2
   end
 
   if value == nil then
@@ -45,6 +46,10 @@ function LOG.dump(value, indent)
   end
 
   if type(value) ~= 'table' then
+    if tag then
+      print('Tag: ' .. tag)
+    end
+
     print('Type: ' .. type(value))
     print('Value: ' .. value)
     print_divider()
