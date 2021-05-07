@@ -4,9 +4,6 @@ BUILD_NUMBER := $(words $(wildcard ./builds/*.love))
 LATEST_BUILD := $(shell echo ${BUILD_NUMBER}-1 | bc)
 LATEST_BUILD_PATH = './builds/build_$(LATEST_BUILD).love'
 
-test:
-
-
 dev:
 	echo "dev"
 	love .
