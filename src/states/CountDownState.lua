@@ -1,4 +1,4 @@
-local Class = require 'lib.hump.Class'
+local Class = require 'lib.hump.class'
 local BaseState = require 'src.states.BaseState'
 
 local push = require 'lib.push.push'

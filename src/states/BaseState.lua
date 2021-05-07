@@ -1,4 +1,4 @@
-local Class = require 'lib.hump.Class'
+local Class = require 'lib.hump.class'
 
 --#region
 ---@class BaseState
